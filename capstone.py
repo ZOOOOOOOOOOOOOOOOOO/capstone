@@ -26,7 +26,7 @@ def pose_drawing(video_path, output_path):
             # 동영상 프레임을 BGR에서 RGB로 변환
             results = pose.process(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB))
 
-            image_hight,image_width, _ = frame.shape
+            image_height,image_width, _ = frame.shape
             if not results.pose_landmarks:
                 continue
 
