@@ -1,8 +1,9 @@
-#첫 어드레스 시 얼굴 좌표 기준 원 형성 &사용자 얼굴 인식
-#52-88 line
+#각도 재는 방법 (일단 하나만)
+#58-84 line
 
 import cv2
 import mediapipe as mp
+import numpy as np
 
 def pose_drawing(video_path, output_path):
     # mediapipe pose 초기화
@@ -34,6 +35,7 @@ def pose_drawing(video_path, output_path):
             # 동영상 프레임을 BGR에서 RGB로 변환
             results = pose.process(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB))
 
+
             image_height, image_width, _ = frame.shape
 
             if not results.pose_landmarks:
@@ -48,7 +50,40 @@ def pose_drawing(video_path, output_path):
                 mp_pose.POSE_CONNECTIONS,
                 landmark_drawing_spec=mp_drawing.DrawingSpec(color=(255, 255, 0), thickness=4, circle_radius=1),
                 connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 255), thickness=4))
-#*첫 지점
+
+            #특정 랜드마크 x,y,z좌표,visibility 알 수 있음 (3줄)
+            #landmark = results.pose_landmarks.landmark
+            #mark_x=landmark[mp_pose.PoseLandmark.LEFT_SHOULDER]
+            #print(mark_x)
+
+            def calculate_angle(a,b,c):
+
+                #각 값을 받아 넘파이 배열로 변형
+                a = np.array(a) #첫 번째
+                b = np.array(b) #두 번째
+                c = np.array(c) #세 번째
+
+                #라디안을 계산하고 실제 각도로 변경한다.
+                radians = np.arctan2(c[1]-b[1],c[0]-b[0]) - np.arctan2(a[1]-b[1],a[0]-b[0])
+                angle  = np.abs(radians*180.0/np.pi)
+
+                #180도가 넘으면 360에서 뺀 값을 계산한다.
+                if angle > 180.0:
+                    angle = 360-angle
+
+                #각도를 리턴한다.
+                return print(angle)
+
+            landmark = results.pose_landmarks.landmark #랜드마크 지정
+            shoulder = [landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
+                        landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmark[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
+                     landmark[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmark[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
+                     landmark[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            calculate_angle(shoulder,elbow,wrist)
+#페이스 라인 첫 지점
             if results.pose_landmarks:
                 # https://google.github.io/mediapipe/solutions/pose.html#pose-landmark-model-blazepose-ghum-3d
                 landmark = results.pose_landmarks.landmark
