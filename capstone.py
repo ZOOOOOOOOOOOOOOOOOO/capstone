@@ -1,5 +1,9 @@
+#ctrl+s -> git add . -> git commit -m "할 말" -> git push
+#git pull
+
 import cv2
 import mediapipe as mp
+import numpy as np
 
 def pose_drawing(video_path, output_path):
     # mediapipe pose 초기화
