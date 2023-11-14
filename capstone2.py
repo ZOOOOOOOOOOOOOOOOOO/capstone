@@ -72,7 +72,7 @@ def pose_drawing(video_path, output_path):
                     angle = 360-angle
 
                 #각도를 리턴한다.
-                return print(angle)
+                print(angle)
 
             landmark = results.pose_landmarks.landmark #랜드마크 지정
             shoulder = [landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,

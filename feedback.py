@@ -90,7 +90,7 @@ def pose_drawing(video_path, output_path):
             right_foot_index_x = landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x
 
             if is_first:
-                if((right_foot_index_x)<(right_shoulder_x-0.04)):
+                if((right_foot_index_x)<(right_shoulder_x-0.04)): 
                     address_1 = 1 #발끝이 어깨보다 더 넓은 경우 ->피드백이 필요한 경우
                 else:
                     address_1 = 0 #피드백 필요 없는 경우
