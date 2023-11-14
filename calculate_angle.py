@@ -16,4 +16,4 @@ def calculate_angle(a, b, c):
         angle = 360 - angle
 
     # 각도를 리턴한다.
-    return print(angle)
+    return angle

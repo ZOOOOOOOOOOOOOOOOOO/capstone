@@ -65,7 +65,7 @@ def pose_drawing(video_path, output_path):
                      landmark[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
 
 
-            calculate_angle(shoulder,elbow,wrist)
+            print(calculate_angle(shoulder,elbow,wrist))
 #페이스/기준선 라인 첫 지점
             if results.pose_landmarks:
                 # https://google.github.io/mediapipe/solutions/pose.html#pose-landmark-model-blazepose-ghum-3d
@@ -130,12 +130,6 @@ def pose_drawing(video_path, output_path):
 
             if cv2.waitKey(1) == ord('q'):
                 break
-
-            #좌표값
-            #nose_landmark = results.pose_landmarks.landmark[0]
-            #nose_x = nose_landmark.x
-            #nose_y = nose_landmark.y
-            #print('x : {} y : {}'.format(nose_x,nose_y))
 
     # 종료 후 정리
 
