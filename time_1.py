@@ -1,5 +1,9 @@
 #시간을 list에 저장
 
+import cv2
+import mediapipe as mp
+import time
+
 def coordinates_1(video_path):
     time_list = []  # 시간을 저장할 리스트를 초기화
     mp_pose = mp.solutions.pose
