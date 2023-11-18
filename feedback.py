@@ -115,7 +115,7 @@ def pose_drawing(video_path, output_path):
                 left_arm_angle = calculate_angle(left_shoulder, left_elbow, left_wrist)
 
                 # 사잇각이 165도를 넘으면
-                if left_arm_angle < 165:
+                if left_arm_angle < 170:
                     # count 1 증가 (1프레임 당 1씩 증가임)
                     count = count + 1
             #165도 넘은게 구간 내의 (총프레임/2)보다 많으면 (==반 이상이 잘못된 자세일 경우)

@@ -35,6 +35,9 @@ def coordinates_1(video_path):
                 time_list.append(time.time())  # 도달하면 값 추가(어드레스, 임팩트)
             if right_wrist.y == target_y2:
                 time_list.append(time.time())  # 도달하면 값 추가(테이크백)
-    print(time_list)
+            print(time_list)
 
     cap.release()
+    
+    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
+    coordinates_1(video_path)
