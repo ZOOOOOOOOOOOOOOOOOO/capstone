@@ -6,7 +6,6 @@ import cv2
 import mediapipe as mp
 import time
 from calculate_angle import calculate_angle
-from time2 import time_def
 import time
 
 
