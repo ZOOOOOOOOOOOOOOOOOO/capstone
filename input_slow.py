@@ -8,7 +8,7 @@ def slowmotion(input_path) :
     # 비디오의 속성을 가져옵니다.
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    duration = frame_count / fps
+    #duration = frame_count / fps
 
     # 슬로우 모션으로 만들기 위해 딜레이를 조절합니다.
     slow_motion_factor = 0.5  # 슬로우 모션 비율
@@ -27,6 +27,10 @@ def slowmotion(input_path) :
 
         # 현재 프레임을 출력 비디오에 추가합니다.
         out.write(frame)
+
+        # 딜레이를 추가하여 슬로우 모션을 구현합니다.
+        for _ in range(int(1/slow_motion_factor) - 1):
+            out.write(frame)
 
         # 딜레이를 추가하여 슬로우 모션을 구현합니다.
         cv2.imshow('Slow Motion Video', frame)
