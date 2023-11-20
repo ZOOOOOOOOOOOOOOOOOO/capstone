@@ -6,6 +6,7 @@ import cv2
 import mediapipe as mp
 import time
 from calculate_angle import calculate_angle
+from input_slow import slowmotion
 import time
 
 
@@ -233,5 +234,6 @@ if __name__ == "__main__":
     #쭈현이꺼
     #video_path = "C:\\Users\\eju20\\OneDrive\\capstone\\practice_3.mp4"  # 입력 동영상 파일 경로
     #output_path = "C:\\Users\\eju20\\OneDrive\\capstone\\output_1.mp4"  # 출력 동영상 파일 경로
-    pose_drawing(video_path, output_path)
+    slow_path = slowmotion(video_path)
+    pose_drawing(slow_path, output_path)
 
