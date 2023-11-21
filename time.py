@@ -11,14 +11,23 @@ def time(video_path):
         # 첫 프레임
         is_first = True
         # 첫 프레임에서 기준값
-        first_left_ankle_x,first_left_ankle_y=None,None
-        first_right_ankle_x,first_right_ankle_y=None,None
+        # 첫 프레임에서 기준값
+        first_left_ankle_x, first_left_ankle_y = None, None
+        first_right_ankle_x, first_right_ankle_y = None, None
         first_ankle_center_x, first_ankle_center_y = None, None
-        first_shoulder_x,first_shoulder_y=None
-        first_eye_inner_x,first_eye_inner_y=None
+        first_shoulder_x, first_shoulder_y = None
+        first_eye_inner_x, first_eye_inner_y = None
 
-        first_ankle_center_x=int((first_left_ankle_x + first_right_ankle_x)/2)
-        first_ankle_center_y=int((first_left_ankle_x + first_right_ankle_y)/2)
+        first_left_ankle_x = landmark[mp_pose.PoseLandmark.LEFT_ANKLE.x]
+        first_left_ankle_y = landmark[mp_pose.PoseLandmark.LEFT_ANKLE.y]
+        first_right_ankle_x = landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.x]
+        first_right_ankle_y = landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.y]
+
+        first_left_shoulder_y=landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.y]
+
+        first_left_eye_inner_y=landmark[mp_pose.PoseLandmark.LEFT_EYE_INNER.y]
+        first_ankle_center_x = int((first_left_ankle_x + first_right_ankle_x) / 2)
+        first_ankle_center_y = int((first_left_ankle_x + first_right_ankle_y) / 2)
 
         while cap.isOpened():
             ret,frame =cap.read()
