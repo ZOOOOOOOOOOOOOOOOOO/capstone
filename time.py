@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 import landmark
-
+from landmark import get_landmark
 time={'address':0,'back':0,'back_top':0,'impact':0,'finish':0}
 def time(video_path):
     cap=cv2.VideoCapture(video_path)
@@ -29,8 +29,7 @@ def time(video_path):
             results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
             #landmark
-            landmark = results.pose_landmarks.landmark
-            landmarks_dict = get_landmark(mp_pose, landmark)
+           landmarks_dict = get_landmark(mp_pose, results.pose_landmarks.landmark)
 
             #현재 시각
             current_time=(cap.get(cv2.CAP_PROP_POS_MSEC)/1000.0)
@@ -51,5 +50,11 @@ def time(video_path):
                 time['impact'] = current_time
             #피니시
 
+    print(time)
+
+
     cap.release()
     cv2.destroyAllWindows()
+
+time("C:\\users\\eju20\\OneDrive\\simulation\\pro_1.mp4")
+
