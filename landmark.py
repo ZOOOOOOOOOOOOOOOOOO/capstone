@@ -1,6 +1,6 @@
 import mediapipe as mp
 
-def landmark():
+def get_landmark(mp_pose,landmark):
     mp_pose=mp.solutions.pose
     nose=[landmark[mp_pose.PoseLandmark.NOSE.value].x,
           landmark[mp_pose.PoseLandmark.NOSE.value].y]#0번
@@ -61,13 +61,50 @@ def landmark():
     right_ankle = [landmark[mp_pose.PoseLandmark.RIGHT_ANKLE].x,
                       landmark[mp_pose.PoseLandmark.RIGHT_ANKLE].y]#28번
     left_heel= [landmark[mp_pose.PoseLandmark.LEFT_HEEL].x,
-                      landmark[mp_pose.PoseLandmark.LEFT_HELL].y]#29번
+                      landmark[mp_pose.PoseLandmark.LEFT_HEEL].y]#29번
     right_heel = [landmark[mp_pose.PoseLandmark.RIGHT_HEEL].x,
                       landmark[mp_pose.PoseLandmark.RIGHT_HEEL].y]#30번
     left_foot_index = [landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX].x,
-                      landmark[mp_pose.PoseLandmark.LEFT_ROOT_INDEX].y]#31번
+                      landmark[mp_pose.PoseLandmark.LEFT_FOOT_INDEX].y]#31번
     right_foot_index = [landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX].x,
-                       landmark[mp_pose.PoseLandmark.RIGHT_ROOT_INDEX].y]#32번
+                       landmark[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX].y]#32번
 
+# 변수들을 딕셔너리에 담아서 반환
+    landmarks_dict = {
+        "nose": nose,
+        "left_eye_inner": left_eye_inner,
+        "left_eye": left_eye,
+        "left_eye_outer": left_eye_outer,
+        "right_eye_inner": right_eye_inner,
+        "right_eye": right_eye,
+        "right_eye_outer": right_eye_outer,
+        "left_ear": left_ear,
+        "right_ear": right_ear,
+        "mouth_left": mouth_left,
+        "mouth_right": mouth_right,
+        "left_shoulder": left_shoulder,
+        "right_shoulder": right_shoulder,
+        "left_elbow": left_elbow,
+        "right_elbow": right_elbow,
+        "left_wrist": left_wrist,
+        "right_wrist": right_wrist,
+        "left_pinky": left_pinky,
+        "right_pinky": right_pinky,
+        "left_index": left_index,
+        "right_index": right_index,
+        "left_thumb": left_thumb,
+        "right_thumb": right_thumb,
+        "left_hip": left_hip,
+        "right_hip": right_hip,
+        "left_knee": left_knee,
+        "right_knee": right_knee,
+        "left_ankle": left_ankle,
+        "right_ankle": right_ankle,
+        "left_heel": left_heel,
+        "right_heel": right_heel,
+        "left_foot_index": left_foot_index,
+        "right_foot_index": right_foot_index
+    }
+    return landmarks_dict
 
 

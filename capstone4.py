@@ -7,6 +7,7 @@ import mediapipe as mp
 import time
 from calculate_angle import calculate_angle
 from input_slow import slowmotion
+from landmark import get_landmark
 import time
 
 
@@ -77,7 +78,9 @@ def pose_drawing(video_path, output_path):
             # landmark = results.pose_landmarks.landmark
             # mark_x=landmark[mp_pose.PoseLandmark.LEFT_SHOULDER]
             # print(mark_x)
-
+            landmark = results.pose_landmarks.landmark
+            landmarks_dict = get_landmark(mp_pose,landmark)
+            print('landmark_left_ear',landmarks_dict["right_ear"])
 #사잇각 구하는 방법 (landmark 이용)
 
             #왼쪽 팔 사잇각
@@ -189,7 +192,7 @@ def pose_drawing(video_path, output_path):
             if time_list[0] <= current_time <= 5000:  # 주현이가 어드레스랑 백스윙 구간 내의 시간을 주면 가능함
                 # 0과 5000(5초)은 현재 임시 초
                 # 사잇각 계산
-
+                
                 left_arm_angle = calculate_angle(left_shoulder, left_elbow, left_wrist)
 
                 # 사잇각이 170도를 넘으면
