@@ -54,7 +54,7 @@ def video_time(video_path, landmarks_dict, image_width, image_height):
             if prev_wrist_y is not None and current_wrist_y > prev_wrist_y:
                 Time['back_top'] = current_time
             # 임팩트
-            if first_ankle_center_x == current_wrist_y:  # 수정 필요
+            if first_ankle_center_x == current_wrist_y: 
                 Time['impact'] = current_time
             # 피니시
 
