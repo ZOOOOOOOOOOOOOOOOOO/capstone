@@ -66,16 +66,21 @@ def pose_drawing(video_path, output_path):
 
 # 페이스/기준선 라인 첫 지점
                 # 페이스 작업을 위한 랜드마크
-            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius = line_landmark(landmarks_dict, image_width, image_height)
+            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y,right_eye_inner_y = line_landmark(landmarks_dict, image_width, image_height)
 
             if is_first:  # 어드레스 시 첫 프레임의 머리 좌표 저장
-                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2)
+                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y,first_right_eye_inner_y \
+                 = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y,right_eye_inner_y
+
                 is_first = False
             else:
                 # 첫 프레임 헤드 생성
                 cv2.circle(annotated_frame, center=(first_head_center_x, first_head_center_y),radius=first_radius, color=(0, 255, 255), thickness=2)
                 # 기준 선 라인 생성
-                cv2.line(annotated_frame, (first_ankle_center_x, 0), (first_ankle_center_x, image_height),(198, 219, 218), 2)
+                cv2.line(annotated_frame, (int(first_ankle_center_x), 0), (first_ankle_center_x, image_height),(198, 219, 218), 2)
+                cv2.line(annotated_frame, (0,int(first_right_shoulder_y)), (image_width,int(first_right_shoulder_y)),(198, 219, 218), 2)
+                cv2.line(annotated_frame, (0, int(first_right_eye_inner_y)), (image_width, int(first_right_eye_inner_y)),(198, 219, 218), 2)
+
                 color = (0, 255, 0)  # 초록색
                 # 머리가 원래 위치보다 많이 벗어난 경우 ->초록에서 빨강
                 if head_center_x - radius < first_head_center_x - first_radius or head_center_x + radius > first_head_center_x + first_radius: color = (0, 0, 255)  # 빨간색
