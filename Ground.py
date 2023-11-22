@@ -1,9 +1,11 @@
+
 import cv2
 import mediapipe as mp
 from calculate_angle import calculate_angle
 from input_slow import slowmotion
 from landmark import get_landmark
 from line_landmark import line_landmark
+from feedback import *
 
 
 def pose_drawing(video_path, output_path):
@@ -13,26 +15,29 @@ def pose_drawing(video_path, output_path):
     mp_drawing_styles = mp.solutions.drawing_styles  # 그래픽 스타일
     cap = cv2.VideoCapture(video_path) #동영상 파일 열기
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) # 총 프레임 개수
-    current_frame_cnt = 0 #현재 프레임 개수
-    fps = int(cap.get(cv2.CAP_PROP_FPS)) #초당? 프레임 수
-    # 시각 리스트
-    time_list = [10]
+    fps = int(cap.get(cv2.CAP_PROP_FPS)) #초당 프레임 수
+
     frame_size = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     # 출력 동영상 파일 설정
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
-    address_1 = 0  # 발과 어꺠넓이 확인용 #1이면 피드백 0이면 ㅇㅋ
-    backswing_1 = 0  # 어드레스 백스윙 전 구간동안 팔이 곧게 뻗어있는지 확인용 #1이면 피드백 필요
-    count = 0  # 백스윙 시 160도 안 넘을 경우 count 증가
+    #피드백 딕셔너리 정의 (None으로 해두면 address 먼저 is_first에서 받았을 때 feedback_dict의 나머지 값들이 None이라서 오류가 뜸 ->그래서 -1로 초기화
+    feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1, 'top': -1, 'impact_eye': -1,
+                     'impact_knee': -1, 'impact_foot': -1}
+    #피드백 변수 선언 (초기화)
+    shoulder_len = 0
+    tb_cnt =0
+    bs_cnt =0
+    total_tb_fr=0
+    total_bs_fr=0
+    total_ip_fr=0
+    red_head = 0
 
-    with mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose:
+    with (mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose):
 
         # 어드레스 시 첫 프레임을 받아오기 위한 플래기
         is_first = True
-        # 어드레스 시 첫 프레임의 좌표를 저장할 변수
-        first_head_center_x, first_head_center_y, first_radius = None, None, None
-        first_ankle_center_x, first_ankle_center_y = None, None
 
         while cap.isOpened():
             # 프레임 읽기
@@ -60,19 +65,18 @@ def pose_drawing(video_path, output_path):
             landmark = results.pose_landmarks.landmark
             landmarks_dict = get_landmark(mp_pose, landmark)
 
-# 사잇각 구하는 방법 (landmark 이용)
-            #print(calculate_angle(landmarks_dict["left_shoulder"], landmarks_dict["left_elbow"],landmarks_dict["left_wrist"]))
-            # 끝
-
 # 페이스/기준선 라인 첫 지점
-                # 페이스 작업을 위한 랜드마크
+            # 페이스 작업을 위한 랜드마크
             head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y,right_eye_inner_y = line_landmark(landmarks_dict, image_width, image_height)
 
-            if is_first:  # 어드레스 시 첫 프레임의 머리 좌표 저장
+            #첫 프레임
+            if is_first:
                 first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y,first_right_eye_inner_y \
                  = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y,right_eye_inner_y
-
+                #어드레스 피드백
+                feedback_dict['address'],shoulder_len = address_feedback(feedback_dict,landmarks_dict)
                 is_first = False
+            #첫 프레임 다음부터
             else:
                 # 첫 프레임 헤드 생성
                 cv2.circle(annotated_frame, center=(first_head_center_x, first_head_center_y),radius=first_radius, color=(0, 255, 255), thickness=2)
@@ -83,69 +87,35 @@ def pose_drawing(video_path, output_path):
 
                 color = (0, 255, 0)  # 초록색
                 # 머리가 원래 위치보다 많이 벗어난 경우 ->초록에서 빨강
-                if head_center_x - radius < first_head_center_x - first_radius or head_center_x + radius > first_head_center_x + first_radius: color = (0, 0, 255)  # 빨간색
+                if head_center_x - radius < first_head_center_x - first_radius or head_center_x + radius > first_head_center_x + first_radius:
+                    color = (0, 0, 255)  # 빨간색
+                    #impact_eye 피드백에 활용 (어드레스-임팩트 구간 내 헤드라인 빨간색이였던 프레임 개수)
+                    if(0 <=current_time<=2):  #Time['address']<=current_time<=Time['impact']
+                        red_head = red_head+1
                 # 실시간 헤드라인
                 cv2.circle(annotated_frame, center=(head_center_x, head_center_y),radius=radius, color=color, thickness=2)
 # 페이스/기준선 끝 지점
 
-            ###backswing_1 : 어드레스-백스윙 첫 구간동안의 사잇각 확인 지점
-
-            # 현재 프레임 개수
-            current_frame_cnt = current_frame_cnt + 1
-
-            left_shoulder = [results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                             results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-            left_elbow = [results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-                          results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
-            left_wrist = [results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                          results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
-
-            # ankle_center_x가 image너비를 곱한 값이라 right_wrist또한 같은 방식으로 치뤄줌
-            right_wrist_x = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST.value].x * image_width
-            right_wrist_y = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST.value].y * image_height
-            left_elbow_y = results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_ELBOW.value].y * image_height
-            # 어드레스 시작 구간의 시각 time_list에 담기
-            if (ankle_center_x == int(right_wrist_x)):
-                time_list[0] = current_time
-
-            print(right_wrist_y, left_elbow_y)
-            if (right_wrist_y >= (left_elbow_y)):
-                print(current_time)
-
-            if time_list[0] <= current_time <= 5000:  # 주현이가 어드레스랑 백스윙 구간 내의 시간을 주면 가능함
-                # 0과 5000(5초)은 현재 임시 초
-                # 사잇각 계산
-
-                left_arm_angle = calculate_angle(left_shoulder, left_elbow, left_wrist)
-
-                # 사잇각이 170도를 넘으면
-                if left_arm_angle < 170:
-                    # count 1 증가 (1프레임 당 1씩 증가임)
-                    count = count + 1
-            # 165도 넘은게 구간 내의 (총프레임/2)보다 많으면 (==반 이상이 잘못된 자세일 경우)
-            if (count > (current_frame_cnt / 2)):
-                backswing_1 = 0  # 피드백 필요한 경우
-            else:
-                backswing_1 = 1  # 피드백 필요없는 경
+#feedback 호출
+            feedback_dict['takeback'],tb_cnt,total_tb_fr = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr)        #takeback
+            feedback_dict['backswing'], bs_cnt, total_bs_fr = takeback_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt,total_bs_fr)  #backswing
+            feedback_dict['top'] = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height)                #top
+            feedback_dict['impact_eye'],total_ip_fr = impact_eye(feedback_dict, current_time, red_head, total_ip_fr)                              #impact_eye
+            feedback_dict['impact_knee'] = impact_knee(feedback_dict, landmarks_dict, current_time)                                               #impact_knee
+            feedback_dict['impact_foot'] = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len)                                    #impact_foot
 
             # 결과 동영상 파일에 추가
             out.write(annotated_frame)
-
             # 결과 출력
             cv2.imshow("MediaPipe Pose", annotated_frame)
-
             if cv2.waitKey(1) == ord('q'):
                 break
 
-    # 어드레스, 벡스윙 결과
-    print('어드레스', address_1)
-    print('170 못 넘긴 개수', count, '|프레임개수', current_frame_cnt)
-    print('백스윙 피드백 필요시 0', '|백스윙 결과', backswing_1)
     # 종료 후 정리
-
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+    print('feedback_dict', feedback_dict)
 
 if __name__ == "__main__":
     video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
