@@ -2,32 +2,27 @@ import cv2
 import mediapipe as mp
 import landmark
 from landmark import get_landmark
-time={'address':0,'back':0,'back_top':0,'impact':0,'finish':0}
-def time(video_path):
+import time
+
+Time={'address':0,'back':0,'back_top':0,'impact':0,'finish':0}
+def vedio_time(video_path,landmarks_dict,image_width,image_height):
     cap=cv2.VideoCapture(video_path)
     mp_pose=mp.solutions.pose
 
     with mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose:
         # 첫 프레임
         is_first = True
-        # 첫 프레임에서 기준값
-        # 첫 프레임에서 기준값
-        first_left_ankle_x, first_left_ankle_y = None, None
-        first_right_ankle_x, first_right_ankle_y = None, None
-        first_ankle_center_x, first_ankle_center_y = None, None
-        first_shoulder_x, first_shoulder_y = None
-        first_eye_inner_x, first_eye_inner_y = None
+        if is_first:
+            first_right_ankle_x = landmarks_dict["right_ankle"][0] * image_width
+            first_left_ankle_x = landmarks_dict["left_ankle"][0] * image_width
 
-        first_left_ankle_x = landmark[mp_pose.PoseLandmark.LEFT_ANKLE.x]
-        first_left_ankle_y = landmark[mp_pose.PoseLandmark.LEFT_ANKLE.y]
-        first_right_ankle_x = landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.x]
-        first_right_ankle_y = landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.y]
+            first_right_shoulder_y = landmarks_dict["right_shoulder"][1] * image_height
 
-        first_left_shoulder_y=landmark[mp_pose.PoseLandmark.LEFT_SHOULDER.y]
+            first_right_eye_inner_y = landmarks_dict["right_eye_inner"][1] * image_height
+            is_first = False
 
-        first_left_eye_inner_y=landmark[mp_pose.PoseLandmark.LEFT_EYE_INNER.y]
         first_ankle_center_x = int((first_left_ankle_x + first_right_ankle_x) / 2)
-        first_ankle_center_y = int((first_left_ankle_x + first_right_ankle_y) / 2)
+
 
         while cap.isOpened():
             ret,frame =cap.read()
@@ -41,29 +36,27 @@ def time(video_path):
             landmarks_dict = get_landmark(mp_pose, results.pose_landmarks.landmark)
 
             #현재 시각
-            current_time=(cap.get(cv2.CAP_PROP_POS_MSEC)/1000.0)
+            current_time = (cap.get(cv2.CAP_PROP_POS_MSEC)/1000.0)
 
             #현재 프레임의 개수
             current_frame_cnt=0
 
             #어드레스
-            if(first_ankle_center_x==landmarks_dict[16][0]):
-                time['address']=current_time
+            if(first_ankle_center_x == landmarks_dict["right_wrist"][0]):
+                Time['address'] = current_time
             #백스윙
-            if(first_shoulder_y==landmarks_dict[17][1]):
-                time['back']=current_time
+            if(first_right_shoulder_y == landmarks_dict["left_pinky"][1]):
+                Time['back'] = current_time
             #백스윙_탑
 
             #임팩트
-            if (first_ankle_center_x == landmarks_dict[16][0]):
-                time['impact'] = current_time
+            if (first_ankle_center_x == landmarks_dict["right_wrist"][0]):
+                Time['impact'] = current_time
             #피니시
-
-    print(time)
-
 
     cap.release()
     cv2.destroyAllWindows()
 
-time("C:\\users\\eju20\\OneDrive\\simulation\\pro_1.mp4")
+    return Time
+
 
