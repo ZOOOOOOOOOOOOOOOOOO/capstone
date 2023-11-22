@@ -38,7 +38,7 @@ def time(video_path):
             results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
             #landmark
-           landmarks_dict = get_landmark(mp_pose, results.pose_landmarks.landmark)
+            landmarks_dict = get_landmark(mp_pose, results.pose_landmarks.landmark)
 
             #현재 시각
             current_time=(cap.get(cv2.CAP_PROP_POS_MSEC)/1000.0)
