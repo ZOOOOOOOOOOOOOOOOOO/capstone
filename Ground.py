@@ -6,7 +6,7 @@ from input_slow import slowmotion
 from landmark import get_landmark
 from line_landmark import line_landmark
 from feedback import *
-
+from time_list import *
 
 def pose_drawing(video_path, output_path):
     # mediapipe pose 초기화
@@ -25,6 +25,9 @@ def pose_drawing(video_path, output_path):
     #피드백 딕셔너리 정의 (None으로 해두면 address 먼저 is_first에서 받았을 때 feedback_dict의 나머지 값들이 None이라서 오류가 뜸 ->그래서 -1로 초기화
     feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1, 'top': -1, 'impact_eye': -1,
                      'impact_knee': -1, 'impact_foot': -1}
+    Time = {'address': -1, 'back': -1, 'back_top': -1, 'impact': -1, 'finish': -1}
+
+
     #피드백 변수 선언 (초기화)
     shoulder_len = 0
     tb_cnt =0
@@ -33,6 +36,8 @@ def pose_drawing(video_path, output_path):
     total_bs_fr=0
     total_ip_fr=0
     red_head = 0
+    address_tmp = 0
+    back_tmp = 0
 
     with (mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose):
 
@@ -96,7 +101,12 @@ def pose_drawing(video_path, output_path):
                 cv2.circle(annotated_frame, center=(head_center_x, head_center_y),radius=radius, color=color, thickness=2)
 # 페이스/기준선 끝 지점
 
-#feedback 호출
+#시간 호출
+            Time['address'],address_tmp = address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,address_tmp)
+            Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
+
+
+            #feedback 호출
             feedback_dict['takeback'],tb_cnt,total_tb_fr = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr)        #takeback
             feedback_dict['backswing'], bs_cnt, total_bs_fr = takeback_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt,total_bs_fr)  #backswing
             feedback_dict['top'] = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height)                #top
@@ -110,12 +120,12 @@ def pose_drawing(video_path, output_path):
             cv2.imshow("MediaPipe Pose", annotated_frame)
             if cv2.waitKey(1) == ord('q'):
                 break
-
     # 종료 후 정리
     cap.release()
     out.release()
     cv2.destroyAllWindows()
     print('feedback_dict', feedback_dict)
+    print('Time', Time)
 
 if __name__ == "__main__":
     video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
