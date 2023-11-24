@@ -108,13 +108,12 @@ def pose_drawing(video_path, output_path):
                 # 실시간 헤드라인
                 cv2.circle(annotated_frame, center=(head_center_x, head_center_y),radius=radius, color=color, thickness=2)
 # 페이스/기준선 끝 지점
-            print(total_time)
 #시간 호출
             Time['address'],address_tmp = address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,address_tmp)
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
             Time['back_top'],top_tmp = top(first_right_eye_inner_y, landmarks_dict, Time, current_time, image_height, top_tmp)
             Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
-            Time['finish'],finish_tmp = finish(current_time, total_time, Time,finish_tmp)
+            Time['finish'],finish_tmp = finish(current_time, total_time, Time,finish_tmp,landmarks_dict,image_width)
 
 
             #feedback 호출
