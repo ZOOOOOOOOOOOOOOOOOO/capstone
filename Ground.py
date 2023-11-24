@@ -1,3 +1,6 @@
+# 기준 선
+# 각도 재는 방법 (일단 하나만)
+# 58-84 line
 
 import cv2
 import mediapipe as mp
@@ -16,14 +19,16 @@ def pose_drawing(video_path, output_path):
     cap = cv2.VideoCapture(video_path) #동영상 파일 열기
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) # 총 프레임 개수
     fps = int(cap.get(cv2.CAP_PROP_FPS)) #초당 프레임 수
-
+    total_frames = (cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frame_rate = cap.get(cv2.CAP_PROP_FPS)
+    total_time = total_frames / frame_rate
     frame_size = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     # 출력 동영상 파일 설정
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
     #피드백 딕셔너리 정의 (None으로 해두면 address 먼저 is_first에서 받았을 때 feedback_dict의 나머지 값들이 None이라서 오류가 뜸 ->그래서 -1로 초기화
-    feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1, 'top': -1, 'impact_eye': -1,
+    feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1 ,'top': -1, 'impact_eye': -1,
                      'impact_knee': -1, 'impact_foot': -1}
     Time = {'address': -1, 'back': -1, 'back_top': -1, 'impact': -1, 'finish': -1}
 
@@ -38,6 +43,9 @@ def pose_drawing(video_path, output_path):
     red_head = 0
     address_tmp = 0
     back_tmp = 0
+    impact_tmp = 0
+    top_tmp = 0
+    finish_tmp = 0
 
     with (mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose):
 
@@ -100,19 +108,22 @@ def pose_drawing(video_path, output_path):
                 # 실시간 헤드라인
                 cv2.circle(annotated_frame, center=(head_center_x, head_center_y),radius=radius, color=color, thickness=2)
 # 페이스/기준선 끝 지점
-
+            print(total_time)
 #시간 호출
             Time['address'],address_tmp = address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,address_tmp)
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
+            Time['back_top'],top_tmp = top(first_right_eye_inner_y, landmarks_dict, Time, current_time, image_height, top_tmp)
+            Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
+            Time['finish'],finish_tmp = finish(current_time, total_time, Time,finish_tmp)
 
 
             #feedback 호출
-            feedback_dict['takeback'],tb_cnt,total_tb_fr = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr)        #takeback
-            feedback_dict['backswing'], bs_cnt, total_bs_fr = takeback_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt,total_bs_fr)  #backswing
-            feedback_dict['top'] = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height)                #top
-            feedback_dict['impact_eye'],total_ip_fr = impact_eye(feedback_dict, current_time, red_head, total_ip_fr)                              #impact_eye
-            feedback_dict['impact_knee'] = impact_knee(feedback_dict, landmarks_dict, current_time)                                               #impact_knee
-            feedback_dict['impact_foot'] = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len)                                    #impact_foot
+            feedback_dict['takeback'],tb_cnt,total_tb_fr = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr,Time)        #takeback
+            feedback_dict['backswing'], bs_cnt, total_bs_fr = takeback_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt,total_bs_fr,Time)  #backswing
+            feedback_dict['top'] = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height,Time)                #top
+            feedback_dict['impact_eye'],total_ip_fr = impact_eye(feedback_dict, current_time, red_head, total_ip_fr,Time)                              #impact_eye
+            feedback_dict['impact_knee'] = impact_knee(feedback_dict, landmarks_dict, current_time,Time)                                               #impact_knee
+            feedback_dict['impact_foot'] = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time)                                    #impact_foot
 
             # 결과 동영상 파일에 추가
             out.write(annotated_frame)

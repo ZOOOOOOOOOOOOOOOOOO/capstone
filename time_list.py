@@ -5,6 +5,7 @@ def address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,ad
     if(address_tmp==0 and (first_ankle_center_x > right_wrist) ): #오차값 5부여 (x좌표가 동일하지 않는 경우가 존재
         address_tmp = address_tmp + 1
         Time['address'] = current_time
+        print('address',Time['address'])
     return Time['address'],address_tmp
 
 
@@ -16,13 +17,28 @@ def backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_heig
         print('back',Time['back'])
     return Time['back'],back_tmp
 
-#현재 프레임,다음 프레임 
-#def top()
+def top(first_right_eye_inner_y, landmarks_dict, Time, current_time, image_height,top_tmp):
+    right_wrist = (landmarks_dict['right_wrist'][1] * image_height)
+    if(top_tmp==0 and (first_right_eye_inner_y >= right_wrist) ): #눈썹보다 작아지게 되면
+        top_tmp = top_tmp + 1
+        Time['back_top'] = current_time
+        print('back_top', Time['back_top'])
+    return Time['back_top'],top_tmp
 
-#def impact(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,impact_tmp):
-#    right_wrist = (landmarks_dict['left_wrist'][0] *image_width)
-#    if(impact_tmp==0 and (first_ankle_center_x < right_wrist) ): #오차값 5부여 (x좌표가 동일하지 않는 경우가 존재
-#        impact_tmp = impact_tmp + 1
-#        Time['address'] = current_time
-#    return Time['address'],impact_tmp
+def impact(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,impact_tmp,top_tmp):
+    right_wrist = (landmarks_dict['right_wrist'][0] *image_width)
+    if(Time['back'] != -1 and impact_tmp==0 and(first_ankle_center_x < right_wrist) ): #오차값 5부여 (x좌표가 동일하지 않는 경우가 존재
+        impact_tmp = impact_tmp + 1
+        top_tmp = top_tmp + 1
+        Time['impact'] = current_time
+        print('impact', Time['impact'])
+    return Time['impact'],impact_tmp
+
+def finish(current_time,total_time,Time,finish_tmp):
+    if(finish_tmp==0 and current_time >= int(total_time-0.5)):
+        finish_tmp = finish_tmp + 1
+        Time['finish'] = (current_time)
+        print('finish', Time['finish'])
+    return Time['finish'],finish_tmp
+
 
