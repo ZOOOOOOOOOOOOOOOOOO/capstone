@@ -34,11 +34,26 @@ def impact(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,imp
         print('impact', Time['impact'])
     return Time['impact'],impact_tmp
 
-def finish(current_time,total_time,Time,finish_tmp):
-    if(finish_tmp==0 and current_time >= int(total_time-0.5)):
+def finish(current_time,total_time,Time,finish_tmp,landmarks_dict,image_width):
+    #right_shoulder = (landmarks_dict['right_shoulder'][0] * image_width)
+    #left_shoulder = (landmarks_dict['left_shoulder'][0] * image_width)
+    right_hip = (landmarks_dict['right_hip'][0] * image_width)
+    left_hip = (landmarks_dict['left_hip'][0] * image_width)
+    #shoulder = abs(right_shoulder - left_shoulder)
+    hip = abs(right_hip - left_hip)
+    print(int(hip))
+    if(finish_tmp==0 and int(hip) ==0):
         finish_tmp = finish_tmp + 1
         Time['finish'] = (current_time)
         print('finish', Time['finish'])
     return Time['finish'],finish_tmp
+#def finish(current_time,total_time,Time,finish_tmp):
+#    if(finish_tmp==0 and current_time >= int(total_time-0.5)):
+#        finish_tmp = finish_tmp + 1
+#        Time['finish'] = (current_time)
+#        print('finish', Time['finish'])
+#    return Time['finish'],finish_tmp
+
+
 
 
