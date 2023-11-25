@@ -27,57 +27,75 @@ def address_feedback(feedback_dict,landmarks_dict):
 
 
 #2.takeback
-def takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr,Time): #!!!!!!!!!!!!!!!!!!!!!time dic 만들어지면 인자에 추가
-    if (Time['address'] <= current_time < Time['back']):
+def takeback_feedback(feedback_dict, landmarks_dict, current_time, tb_cnt, total_tb_fr, Time, tb_tmp,tb_angle): #!!!!!!!!!!!!!!!!!!!!!time dic 만들어지면 인자에 추가
+    left_arm_angle = calculate_angle(landmarks_dict['left_shoulder'], landmarks_dict['left_elbow'],landmarks_dict['left_wrist'])
+    #팔 각도 170보다 낮은 경우 cnt 세는 코드
+    if (Time['address'] <= current_time  and Time['address']!=-1 and tb_tmp==0): #어드레스를 지났을 때
         total_tb_fr = total_tb_fr + 1
-        left_arm_angle = calculate_angle(landmarks_dict['left_shoulder'], landmarks_dict['left_elbow'],landmarks_dict['left_wrist'])
-        # 사잇각이 170도를 넘으면
+        # 사잇각이 170도를 못 넘으면
         if left_arm_angle < 170:
             tb_cnt = tb_cnt + 1
-    # 170도 넘은게 구간 내의 (총프레임/2)보다 많으면 (==반 이상이 잘못된 자세일 경우)
-        if(current_time == Time['back']):
-            print("테이크백 동일 값 없음???")
-            if (tb_cnt > (total_tb_fr / 2)):
-                feedback_dict['takeback'] = 0  # 피드백 필요한 경우
-            else:
-                feedback_dict['takeback'] = 1  # 피드백 필요없는 경우
-    return feedback_dict['takeback'],tb_cnt,total_tb_fr
+            tb_angle.append(left_arm_angle)
+            if((current_time > Time['back']) and Time['back']!= -1):#알고보니 테이크백 지난 경우일 때
+                total_tb_fr = total_tb_fr -1
+                tb_cnt = tb_cnt - 1
+                tb_angle.pop()
+
+    #print('tb',total_tb_fr,tb_cnt)
+    if(current_time >= Time['back'] and tb_tmp==0 and Time['back'] != -1):
+        tb_tmp = tb_tmp + 1
+        if (tb_cnt > (total_tb_fr / 2)):
+            print('tb', total_tb_fr, tb_cnt)
+            feedback_dict['takeback'] = sum(tb_angle)/tb_cnt  # 피드백 필요한 경우 ->각도 평균값
+        else:
+            feedback_dict['takeback'] = 1  # 피드백 필요없는 경우
+
+    return feedback_dict['takeback'],tb_cnt,total_tb_fr,tb_tmp,tb_angle
 
 
 
 
 
 #3.backswing
-def backswing_feedback(feedback_dict,landmarks_dict,current_time,bs_cnt,total_bs_fr,Time):
-    if (Time['back'] <= current_time < Time['back_top']):
-        total_bs_fr = total_bs_fr+ 1
-        left_arm_angle = calculate_angle(landmarks_dict['left_shoulder'], landmarks_dict['left_elbow'],landmarks_dict['left_wrist'])
-        # 사잇각이 160도를 넘으면
+##########################문제 ) 너무 구간이 짧아서 못 들어오는건지,확인 (68번재 줄 print가 출력 안 됨)
+def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, total_bs_fr, Time, bs_tmp,bs_angle):
+    left_arm_angle = calculate_angle(landmarks_dict['left_shoulder'], landmarks_dict['left_elbow'],landmarks_dict['left_wrist'])
+    if (Time['back'] <= current_time and Time['back']!=-1):
+        total_bs_fr = total_bs_fr + 1
+        # 사잇각이 160도를 못 넘으면
         if left_arm_angle < 160:
-            # count 1 증가 (1프레임 당 1씩 증가임)
             bs_cnt = bs_cnt + 1
-    # 160도 넘은게 구간 내의 (총프레임/2)보다 많으면 (==반 이상이 잘못된 자세일 경우)
-    if(current_time == Time['back_top']):
-        print(" 백스윙 동일 값 없음???")
+            bs_angle.append(left_arm_angle)
+            if((current_time >= Time['back_top']) and Time['back_top']!= -1):#알고보니 백탑 지난 경우일 때
+                total_tb_fr = total_bs_fr -1
+                bs_cnt = bs_cnt - 1
+                bs_angle.pop()
+
+
+    # 160도 넘은게 구간 내의 (총 프레임/2)보다 많으면 (==반 이상이 잘못된 자세일 경우)
+    if(current_time >= Time['back_top'] and bs_tmp ==0 and Time['back_top']!= -1) :
+        bs_tmp = bs_tmp + 1
         if (bs_cnt > (total_bs_fr / 2)):
-            feedback_dict['backswing'] = 0  # 피드백 필요한 경우
+            print('bs', total_bs_fr, bs_cnt)
+            feedback_dict['backswing'] = sum(bs_angle)/bs_cnt  # 피드백 필요한 경우
         else:
             feedback_dict['backswing'] = 1  # 피드백 필요없는 경우
 
-    return feedback_dict['backswing'], bs_cnt, total_bs_fr
+    return feedback_dict['backswing'], bs_cnt, total_bs_fr,bs_tmp,bs_angle
 
 
 
 
 
 #4.top_feedback
-def top_feedback(feedback_dict,landmarks_dict,current_time,first_right_eye_inner_y,image_height,Time):
-    if(current_time == Time['back_top']):
+def top_feedback(feedback_dict,landmarks_dict,current_time,first_right_eye_inner_y,image_height,Time,top2_tmp):
+    if(current_time > Time['back_top'] and top2_tmp ==0):
+        top2_tmp = top2_tmp + 1
         if(first_right_eye_inner_y >= landmarks_dict['left_thumb'][1]*image_height):
             feedback_dict['top'] = 1
         else:
             feedback_dict['top'] = 0
-    return feedback_dict['top']
+    return feedback_dict['top'],top2_tmp
 
 
 

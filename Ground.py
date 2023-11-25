@@ -28,7 +28,7 @@ def pose_drawing(video_path, output_path):
     out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
     #피드백 딕셔너리 정의 (None으로 해두면 address 먼저 is_first에서 받았을 때 feedback_dict의 나머지 값들이 None이라서 오류가 뜸 ->그래서 -1로 초기화
-    feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1 ,'top': -1, 'impact_eye': -1,
+    feedback_dict = {'address': -1, 'takeback': -1, 'backswing': -1,'top': -1, 'impact_eye': -1,
                      'impact_knee': -1, 'impact_foot': -1}
     Time = {'address': -1, 'back': -1, 'back_top': -1, 'impact': -1, 'finish': -1}
 
@@ -42,10 +42,15 @@ def pose_drawing(video_path, output_path):
     total_ip_fr=0
     red_head = 0
     address_tmp = 0
+    tb_tmp = 0
+    bs_tmp = 0
     back_tmp = 0
     impact_tmp = 0
     top_tmp = 0
+    top2_tmp = 0
     finish_tmp = 0
+    tb_angle = [] #피드백받을 각도 리스트
+    bs_angle = []
 
     with (mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=2) as pose):
 
@@ -117,13 +122,14 @@ def pose_drawing(video_path, output_path):
 
 
             #feedback 호출
-            feedback_dict['takeback'],tb_cnt,total_tb_fr = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr,Time)        #takeback
-            feedback_dict['backswing'], bs_cnt, total_bs_fr = takeback_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt,total_bs_fr,Time)  #backswing
-            feedback_dict['top'] = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height,Time)                #top
+            feedback_dict['takeback'],tb_cnt,total_tb_fr,tb_tmp,tb_angle = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr,Time,tb_tmp,tb_angle)        #takeback
+            feedback_dict['backswing'], bs_cnt, total_bs_fr,bs_tmp,bs_angle = backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, total_bs_fr, Time, bs_tmp,bs_angle)  #backswing
+            feedback_dict['top'],top2_tmp = top_feedback(feedback_dict, landmarks_dict, current_time, first_right_eye_inner_y,image_height,Time,top2_tmp)                #top
             feedback_dict['impact_eye'],total_ip_fr = impact_eye(feedback_dict, current_time, red_head, total_ip_fr,Time)                              #impact_eye
             feedback_dict['impact_knee'] = impact_knee(feedback_dict, landmarks_dict, current_time,Time)                                               #impact_knee
             feedback_dict['impact_foot'] = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time)                                    #impact_foot
 
+            print(current_time)
             # 결과 동영상 파일에 추가
             out.write(annotated_frame)
             # 결과 출력
@@ -137,8 +143,9 @@ def pose_drawing(video_path, output_path):
     print('feedback_dict', feedback_dict)
     print('Time', Time)
 
+
 if __name__ == "__main__":
-    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
+    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\me.mp4'  # 입력 동영상 파일 경로
     output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
     # 쭈현이꺼
     # video_path = "C:\\Users\\eju20\\OneDrive\\capstone\\practice_3.mp4"  # 입력 동영상 파일 경로
