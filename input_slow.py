@@ -33,9 +33,9 @@ def slowmotion(input_path) :
             out.write(frame)
 
         # 딜레이를 추가하여 슬로우 모션을 구현합니다.
-        cv2.imshow('Slow Motion Video', frame)
-        if cv2.waitKey(delay) & 0xFF == ord('q'):
-            break
+        #cv2.imshow('Slow Motion Video', frame)
+        #if cv2.waitKey(delay) & 0xFF == ord('q'):
+        #    break
 
     # 사용한 자원을 해제합니다.
     cap.release()
