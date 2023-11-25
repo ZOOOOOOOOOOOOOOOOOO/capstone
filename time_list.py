@@ -11,7 +11,7 @@ def address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,ad
 
 def backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp):
     left_pinky = (landmarks_dict['left_pinky'][1] *image_height)
-    if(back_tmp==0 and (first_right_shoulder_y > left_pinky) ): #오차값 5부여 (x좌표가 동일하지 않는 경우가 존재
+    if(back_tmp==0 and (first_right_shoulder_y >= left_pinky) ): #오차값 5부여 (x좌표가 동일하지 않는 경우가 존재
         back_tmp = back_tmp + 1
         Time['back'] = current_time
         print('back',Time['back'])
@@ -19,7 +19,7 @@ def backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_heig
 
 def top(first_right_eye_inner_y, landmarks_dict, Time, current_time, image_height,top_tmp):
     right_wrist = (landmarks_dict['right_wrist'][1] * image_height)
-    if(top_tmp==0 and (first_right_eye_inner_y >= right_wrist) ): #눈썹보다 작아지게 되면
+    if(top_tmp==0 and (first_right_eye_inner_y - 50 > right_wrist) ): #눈썹보다 작아지게 되면
         top_tmp = top_tmp + 1
         Time['back_top'] = current_time
         print('back_top', Time['back_top'])
@@ -42,7 +42,7 @@ def finish(current_time,total_time,Time,finish_tmp,landmarks_dict,image_width):
     #shoulder = abs(right_shoulder - left_shoulder)
     hip = abs(right_hip - left_hip)
     print(int(hip))
-    if(finish_tmp==0 and int(hip) ==0):
+    if(finish_tmp==0 and 0<=int(hip) and int(hip)<=1):
         finish_tmp = finish_tmp + 1
         Time['finish'] = (current_time)
         print('finish', Time['finish'])
