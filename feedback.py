@@ -88,13 +88,19 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
 
 
 #4.top_feedback
-def top_feedback(feedback_dict,landmarks_dict,current_time,first_right_eye_inner_y,image_height,Time,top2_tmp):
-    if(current_time > Time['back_top'] and top2_tmp ==0):
+def top_feedback(feedback_dict,landmarks_dict,current_time,first_head_center_y,first_radius,image_height,Time,top2_tmp):
+    if(current_time > Time['back_top'] and top2_tmp ==0 and Time['back_top']!=-1):
         top2_tmp = top2_tmp + 1
-        if(first_right_eye_inner_y >= landmarks_dict['left_thumb'][1]*image_height):
+        print('탑진입1')
+        if(first_head_center_y - first_radius >= landmarks_dict['left_wrist'][1]*image_height):
+            print('탑진입2',first_head_center_y - first_radius,landmarks_dict['left_wrist'][1]*image_height)
             feedback_dict['top'] = 1
+            print('탑진입2')
+
         else:
+            print('탑진입3',first_head_center_y - first_radius,landmarks_dict['left_wrist'][1]*image_height)
             feedback_dict['top'] = 0
+            print('탑진입3')
     return feedback_dict['top'],top2_tmp
 
 
@@ -102,42 +108,51 @@ def top_feedback(feedback_dict,landmarks_dict,current_time,first_right_eye_inner
 
 
 #5, impact - eye
-def impact_eye(feedback_dict,current_time,red_head,total_ip_fr,Time):
-    if (Time['address'] <= current_time < Time['impact']):
+def impact_eye(feedback_dict,current_time,red_head,total_ip_fr,Time,impact_eye_tmp):
+    if (Time['address'] <= current_time and Time['address']!=-1 and impact_eye_tmp ==0 ):
         total_ip_fr = total_ip_fr + 1
-        if(current_time == Time['impact']):
+        if(current_time >= Time['impact'] and Time['impact']!=-1 and impact_eye_tmp==0 ):
+            print('임팩트 아이 진입 성공 ')
             if(red_head > (total_ip_fr/2)):
                 feedback_dict['impact_eye'] = 0
             else:
                 feedback_dict['impact_eye'] = 1
-    return feedback_dict['impact_eye'],total_ip_fr
+            impact_eye_tmp = impact_eye_tmp + 1
+    return feedback_dict['impact_eye'],total_ip_fr,impact_eye_tmp
 
 
 
 
 
 #6, impact - 발 간격
-def impact_knee(feedback_dict,landmarks_dict,current_time,Time):
-    if(current_time == Time['impact']):
+def impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,first_left_shoulder_x,first_right_shoulder_x):
+    left_knee_index_x = landmarks_dict["left_knee_index"][0]
+    right_knee_index_x = landmarks_dict["right_knee_index"][0]
+    knee_len = left_knee_index_x - right_knee_index_x
+
+    if(current_time >= Time['impact'] and Time['impact']!=-1 and impact_knee_tmp==0):
+        print('임팩트 무릎 진입 성공 ')
         knee_len = (landmarks_dict['left_knee'][0])-(landmarks_dict['right_knee'][0])
         if(knee_len > 0.2): ###############time되면 전문가 테스트해보고 다시 오차값 결정해야함
             feedback_dict['impact_knee'] = 0
         else:
             feedback_dict['impact_knee'] = 1
-    return feedback_dict['impact_knee']
+        impact_knee_tmp = impact_knee_tmp+1
+    return feedback_dict['impact_knee'],impact_knee_tmp
 
 
 
 
 #7, impact - 발 간격
-def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time):
+def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impact_foot_tmp):
 
     left_foot_index_x = landmarks_dict["left_foot_index"][0]
     right_foot_index_x = landmarks_dict["right_foot_index"][0]
     foot_len = left_foot_index_x - right_foot_index_x
 
     # print("어깨 간격",shoulder_len,"발 간격",foot_len)
-    if(current_time == Time['impact']):
+    if(current_time >= Time['impact'] and Time['impact']!= -1 and impact_foot_tmp ==0 ):
+        print('임팩트 발간격 진입 성공 ')
         if(foot_len >= shoulder_len):
             if(foot_len>= (shoulder_len+0.2)):
                 feedback_dict = {"impact_foot": 0}
@@ -145,8 +160,9 @@ def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time):
                 feedback_dict = {"impact_foot": 1}
         elif(foot_len < shoulder_len):
             feedback_dict = {"impact_foot": -1}
+        impact_foot_tmp = impact_foot_tmp + 1
+    return feedback_dict['impact_foot'],impact_foot_tmp
 
-    return feedback_dict['impact_foot']
 
 
 
