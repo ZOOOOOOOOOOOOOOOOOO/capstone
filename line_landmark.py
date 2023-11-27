@@ -26,8 +26,6 @@ def line_landmark(landmarks_dict, image_width, image_height):
     right_shoulder_x = landmarks_dict["right_shoulder"][0] * image_width
     right_shoulder_y = landmarks_dict["right_shoulder"][1] * image_height
 
-    left_shoulder_x = landmarks_dict["left_shoulder"][0] * image_width
-    left_shoulder_y = landmarks_dict["left_shoulder"][1] * image_height
 
     #right_eye_inner_x = landmarks_dict["right_eye_inner"][0] *image_width
     #right_eye_inner_y = landmarks_dict["right_eye_inner"][1] * image_height

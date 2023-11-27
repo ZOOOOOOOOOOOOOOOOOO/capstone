@@ -12,7 +12,6 @@ def address_feedback(feedback_dict,landmarks_dict):
     right_foot_index_x = landmarks_dict["right_foot_index"][0]
     foot_len = left_foot_index_x - right_foot_index_x
 
-    #print("어깨 간격",shoulder_len,"발 간격",foot_len)
     if(foot_len >= shoulder_len):
         if(foot_len>= (shoulder_len+0.2)):
             feedback_dict = {"address": 0}
@@ -41,11 +40,9 @@ def takeback_feedback(feedback_dict, landmarks_dict, current_time, tb_cnt, total
                 tb_cnt = tb_cnt - 1
                 tb_angle.pop()
 
-    #print('tb',total_tb_fr,tb_cnt)
     if(current_time >= Time['back'] and tb_tmp==0 and Time['back'] != -1):
         tb_tmp = tb_tmp + 1
         if (tb_cnt > (total_tb_fr / 2)):
-            print('tb', total_tb_fr, tb_cnt)
             feedback_dict['takeback'] = sum(tb_angle)/tb_cnt  # 피드백 필요한 경우 ->각도 평균값
         else:
             feedback_dict['takeback'] = 1  # 피드백 필요없는 경우
@@ -76,7 +73,6 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
     if(current_time >= Time['back_top'] and bs_tmp ==0 and Time['back_top']!= -1) :
         bs_tmp = bs_tmp + 1
         if (bs_cnt > (total_bs_fr / 2)):
-            print('bs', total_bs_fr, bs_cnt)
             feedback_dict['backswing'] = sum(bs_angle)/bs_cnt  # 피드백 필요한 경우
         else:
             feedback_dict['backswing'] = 1  # 피드백 필요없는 경우
@@ -91,16 +87,10 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
 def top_feedback(feedback_dict,landmarks_dict,current_time,first_head_center_y,first_radius,image_height,Time,top2_tmp):
     if(current_time > Time['back_top'] and top2_tmp ==0 and Time['back_top']!=-1):
         top2_tmp = top2_tmp + 1
-        print('탑진입1')
-        if(first_head_center_y - first_radius >= landmarks_dict['left_wrist'][1]*image_height):
-            print('탑진입2',first_head_center_y - first_radius,landmarks_dict['left_wrist'][1]*image_height)
+        if(first_head_center_y - first_radius >= landmarks_dict['right_wrist'][1] * image_height):
             feedback_dict['top'] = 1
-            print('탑진입2')
-
         else:
-            print('탑진입3',first_head_center_y - first_radius,landmarks_dict['left_wrist'][1]*image_height)
             feedback_dict['top'] = 0
-            print('탑진입3')
     return feedback_dict['top'],top2_tmp
 
 
@@ -112,7 +102,6 @@ def impact_eye(feedback_dict,current_time,red_head,total_ip_fr,Time,impact_eye_t
     if (Time['address'] <= current_time and Time['address']!=-1 and impact_eye_tmp ==0 ):
         total_ip_fr = total_ip_fr + 1
         if(current_time >= Time['impact'] and Time['impact']!=-1 and impact_eye_tmp==0 ):
-            print('임팩트 아이 진입 성공 ')
             if(red_head > (total_ip_fr/2)):
                 feedback_dict['impact_eye'] = 0
             else:
@@ -125,20 +114,19 @@ def impact_eye(feedback_dict,current_time,red_head,total_ip_fr,Time,impact_eye_t
 
 
 #6, impact - 발 간격
-def impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,first_left_shoulder_x,first_right_shoulder_x):
-    left_knee_index_x = landmarks_dict["left_knee_index"][0]
-    right_knee_index_x = landmarks_dict["right_knee_index"][0]
+def impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,shoulder_len):
+    left_knee_index_x = landmarks_dict["left_knee"][0]
+    right_knee_index_x = landmarks_dict["right_knee"][0]
     knee_len = left_knee_index_x - right_knee_index_x
 
-    if(current_time >= Time['impact'] and Time['impact']!=-1 and impact_knee_tmp==0):
-        print('임팩트 무릎 진입 성공 ')
-        knee_len = (landmarks_dict['left_knee'][0])-(landmarks_dict['right_knee'][0])
-        if(knee_len > 0.2): ###############time되면 전문가 테스트해보고 다시 오차값 결정해야함
-            feedback_dict['impact_knee'] = 0
-        else:
-            feedback_dict['impact_knee'] = 1
-        impact_knee_tmp = impact_knee_tmp+1
-    return feedback_dict['impact_knee'],impact_knee_tmp
+    if (current_time >= Time['impact'] and Time['impact'] != -1 and impact_knee_tmp == 0):
+        if (knee_len > shoulder_len + 0.3):
+            feedback_dict = {"impact_knee": 0}#너무 넓은 경우
+        elif (knee_len < shoulder_len):
+            feedback_dict = {"impact_knee": 1}#적당한 경우
+        impact_knee_tmp = impact_knee_tmp + 1
+    return feedback_dict['impact_knee'], impact_knee_tmp
+
 
 
 
@@ -150,9 +138,7 @@ def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impa
     right_foot_index_x = landmarks_dict["right_foot_index"][0]
     foot_len = left_foot_index_x - right_foot_index_x
 
-    # print("어깨 간격",shoulder_len,"발 간격",foot_len)
     if(current_time >= Time['impact'] and Time['impact']!= -1 and impact_foot_tmp ==0 ):
-        print('임팩트 발간격 진입 성공 ')
         if(foot_len >= shoulder_len):
             if(foot_len>= (shoulder_len+0.2)):
                 feedback_dict = {"impact_foot": 0}
@@ -162,6 +148,9 @@ def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impa
             feedback_dict = {"impact_foot": -1}
         impact_foot_tmp = impact_foot_tmp + 1
     return feedback_dict['impact_foot'],impact_foot_tmp
+
+
+
 
 
 

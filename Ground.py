@@ -88,12 +88,12 @@ def pose_drawing(video_path, output_path):
 
 # 페이스/기준선 라인 첫 지점
             # 페이스 작업을 위한 랜드마크
-            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y,right_eye_inner_y ,right_shoulder_x,left_shoulder_x= line_landmark(landmarks_dict, image_width, image_height)
+            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y= line_landmark(landmarks_dict, image_width, image_height)
 
             #첫 프레임
             if is_first:
-                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y,first_right_eye_inner_y, first_right_shoulder_x,first_left_shoulder_x \
-                 = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y,right_eye_inner_y,right_shoulder_x,left_shoulder_x
+                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y \
+                 = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y
                 #어드레스 피드백
                 feedback_dict['address'],shoulder_len = address_feedback(feedback_dict,landmarks_dict)
                 is_first = False
@@ -121,7 +121,7 @@ def pose_drawing(video_path, output_path):
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
             Time['back_top'],top_tmp = top(first_head_center_y,first_radius, landmarks_dict, Time, current_time, image_height, top_tmp)
             Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
-            Time['finish'],finish_tmp = finish(current_time, total_time, Time,finish_tmp,landmarks_dict,image_width)
+            Time['finish'] = total_time
 
 
             #feedback 호출
@@ -129,7 +129,7 @@ def pose_drawing(video_path, output_path):
             feedback_dict['backswing'], bs_cnt, total_bs_fr,bs_tmp,bs_angle = backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, total_bs_fr, Time, bs_tmp,bs_angle)  #backswing
             feedback_dict['top'],top2_tmp = top_feedback(feedback_dict, landmarks_dict, current_time, first_head_center_y, first_radius, image_height,Time,top2_tmp)                #top
             feedback_dict['impact_eye'],total_ip_fr,impact_eye_tmp = impact_eye(feedback_dict, current_time, red_head, total_ip_fr,Time,impact_eye_tmp)                              #impact_eye
-            feedback_dict['impact_knee'],impact_knee_tmp = impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,first_left_shoulder_x,first_right_shoulder_x)                                               #impact_knee
+            feedback_dict['impact_knee'],impact_knee_tmp = impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,shoulder_len)                                               #impact_knee
             feedback_dict['impact_foot'],impact_foot_tmp = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impact_foot_tmp)                                    #impact_foot
 
             print(current_time)
