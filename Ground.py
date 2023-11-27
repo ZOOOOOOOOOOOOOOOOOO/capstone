@@ -101,7 +101,7 @@ def pose_drawing(video_path, output_path):
                 # 기준 선 라인 생성
                 cv2.line(annotated_frame, (int(first_ankle_center_x), 0), (first_ankle_center_x, image_height),(198, 219, 218), 2)
                 cv2.line(annotated_frame, (0,int(first_right_shoulder_y)), (image_width,int(first_right_shoulder_y)),(198, 219, 218), 2)
-                cv2.line(annotated_frame, (0, int(first_right_eye_inner_y)), (image_width, int(first_right_eye_inner_y)),(198, 219, 218), 2)
+                cv2.line(annotated_frame, (0, int(first_head_center_y - first_radius)), (image_width, int(first_head_center_y - first_radius)),(198, 219, 218), 2)
 
                 color = (0, 255, 0)  # 초록색
                 # 머리가 원래 위치보다 많이 벗어난 경우 ->초록에서 빨강
@@ -116,7 +116,7 @@ def pose_drawing(video_path, output_path):
 #시간 호출
             Time['address'],address_tmp = address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,address_tmp)
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
-            Time['back_top'],top_tmp = top(first_right_eye_inner_y, landmarks_dict, Time, current_time, image_height, top_tmp)
+            Time['back_top'],top_tmp = top(first_head_center_y,first_radius, landmarks_dict, Time, current_time, image_height, top_tmp)
             Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
             Time['finish'],finish_tmp = finish(current_time, total_time, Time,finish_tmp,landmarks_dict,image_width)
 
@@ -145,11 +145,11 @@ def pose_drawing(video_path, output_path):
 
 
 if __name__ == "__main__":
-    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\me.mp4'  # 입력 동영상 파일 경로
-    output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
+    #video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\me.mp4'  # 입력 동영상 파일 경로
+    #output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
     # 쭈현이꺼
-    # video_path = "C:\\Users\\eju20\\OneDrive\\capstone\\practice_3.mp4"  # 입력 동영상 파일 경로
-    # output_path = "C:\\Users\\eju20\\OneDrive\\capstone\\output_1.mp4"  # 출력 동영상 파일 경로
+    video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_3.mp4"  # 입력 동영상 파일 경로
+    output_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro3_output.mp4"  # 출력 동영상 파일 경로
     slow_path = slowmotion(video_path)
     pose_drawing(slow_path, output_path)
 
