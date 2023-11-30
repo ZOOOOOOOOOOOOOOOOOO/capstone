@@ -19,7 +19,7 @@ def address_feedback(feedback_dict,landmarks_dict):
             feedback_dict = {"address" : 1}
     elif(foot_len < shoulder_len):
         feedback_dict = {"address": -1}
-
+    print('address :',feedback_dict['address'])
     return feedback_dict['address'],shoulder_len
 
 
@@ -32,7 +32,7 @@ def takeback_feedback(feedback_dict, landmarks_dict, current_time, tb_cnt, total
     if (Time['address'] <= current_time  and Time['address']!=-1 and tb_tmp==0): #어드레스를 지났을 때
         total_tb_fr = total_tb_fr + 1
         # 사잇각이 170도를 못 넘으면
-        if left_arm_angle < 170:
+        if left_arm_angle < 165:
             tb_cnt = tb_cnt + 1
             tb_angle.append(left_arm_angle)
             if((current_time > Time['back']) and Time['back']!= -1):#알고보니 테이크백 지난 경우일 때
@@ -46,6 +46,7 @@ def takeback_feedback(feedback_dict, landmarks_dict, current_time, tb_cnt, total
             feedback_dict['takeback'] = sum(tb_angle)/tb_cnt  # 피드백 필요한 경우 ->각도 평균값
         else:
             feedback_dict['takeback'] = 1  # 피드백 필요없는 경우
+        print('takeback :',feedback_dict['takeback'])
 
     return feedback_dict['takeback'],tb_cnt,total_tb_fr,tb_tmp,tb_angle
 
@@ -60,7 +61,7 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
     if (Time['back'] <= current_time and Time['back']!=-1):
         total_bs_fr = total_bs_fr + 1
         # 사잇각이 160도를 못 넘으면
-        if left_arm_angle < 160:
+        if left_arm_angle < 155:
             bs_cnt = bs_cnt + 1
             bs_angle.append(left_arm_angle)
             if((current_time >= Time['back_top']) and Time['back_top']!= -1):#알고보니 백탑 지난 경우일 때
@@ -76,6 +77,7 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
             feedback_dict['backswing'] = sum(bs_angle)/bs_cnt  # 피드백 필요한 경우
         else:
             feedback_dict['backswing'] = 1  # 피드백 필요없는 경우
+        print('backswing :',feedback_dict['backswing'])
 
     return feedback_dict['backswing'], bs_cnt, total_bs_fr,bs_tmp,bs_angle
 
@@ -84,15 +86,17 @@ def backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, tota
 
 
 #4.top_feedback
-def top_feedback(feedback_dict,landmarks_dict,current_time,first_head_center_y,first_radius,image_height,Time,top2_tmp):
+def top_feedback(feedback_dict,landmarks_dict,current_time,first_head_center_y,image_height,Time,top2_tmp,first_head_center_x,first_left_ear_x):
     if(current_time > Time['back_top'] and top2_tmp ==0 and Time['back_top']!=-1):
         top2_tmp = top2_tmp + 1
-        if(first_head_center_y - first_radius >= landmarks_dict['right_wrist'][1] * image_height):
+        right_wrist = (landmarks_dict['right_wrist'][1] * image_height)
+        first_radius = (abs(int(first_head_center_x - first_left_ear_x)))
+        if((first_head_center_y - first_radius > right_wrist)):
             feedback_dict['top'] = 1
         else:
             feedback_dict['top'] = 0
+        print('top :',feedback_dict['top'])
     return feedback_dict['top'],top2_tmp
-
 
 
 
@@ -107,6 +111,8 @@ def impact_eye(feedback_dict,current_time,red_head,total_ip_fr,Time,impact_eye_t
             else:
                 feedback_dict['impact_eye'] = 1
             impact_eye_tmp = impact_eye_tmp + 1
+
+            print('impact_eye :',feedback_dict['impact_eye'])
     return feedback_dict['impact_eye'],total_ip_fr,impact_eye_tmp
 
 
@@ -125,6 +131,8 @@ def impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp
         elif (knee_len < shoulder_len):
             feedback_dict = {"impact_knee": 1}#적당한 경우
         impact_knee_tmp = impact_knee_tmp + 1
+        print('impact_knee :',feedback_dict['impact_knee'])
+
     return feedback_dict['impact_knee'], impact_knee_tmp
 
 
@@ -147,6 +155,8 @@ def impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impa
         elif(foot_len < shoulder_len):
             feedback_dict = {"impact_foot": -1}
         impact_foot_tmp = impact_foot_tmp + 1
+        print('impact_foot :',feedback_dict['impact_foot'])
+
     return feedback_dict['impact_foot'],impact_foot_tmp
 
 

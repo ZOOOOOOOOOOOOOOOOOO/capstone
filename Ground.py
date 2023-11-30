@@ -121,18 +121,18 @@ def pose_drawing(video_path, output_path):
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
             Time['back_top'],top_tmp = top(first_head_center_y,first_head_center_x,first_left_ear_x, landmarks_dict, Time, current_time, image_height, top_tmp)
             Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
-            Time['finish'] = total_time
+            Time['finish'],finish_tmp = finish(current_time,total_time,Time,finish_tmp)
 
 
             #feedback 호출
             feedback_dict['takeback'],tb_cnt,total_tb_fr,tb_tmp,tb_angle = takeback_feedback(feedback_dict,landmarks_dict,current_time,tb_cnt,total_tb_fr,Time,tb_tmp,tb_angle)        #takeback
             feedback_dict['backswing'], bs_cnt, total_bs_fr,bs_tmp,bs_angle = backswing_feedback(feedback_dict, landmarks_dict, current_time, bs_cnt, total_bs_fr, Time, bs_tmp,bs_angle)  #backswing
-            feedback_dict['top'],top2_tmp = top_feedback(feedback_dict, landmarks_dict, current_time, first_head_center_y, first_radius, image_height,Time,top2_tmp)                #top
+            feedback_dict['top'],top2_tmp = top_feedback(feedback_dict,landmarks_dict,current_time,first_head_center_y,image_height,Time,top2_tmp,first_head_center_x,first_left_ear_x)               #top
             feedback_dict['impact_eye'],total_ip_fr,impact_eye_tmp = impact_eye(feedback_dict, current_time, red_head, total_ip_fr,Time,impact_eye_tmp)                              #impact_eye
             feedback_dict['impact_knee'],impact_knee_tmp = impact_knee(feedback_dict, landmarks_dict, current_time,Time,impact_knee_tmp,shoulder_len)                                               #impact_knee
             feedback_dict['impact_foot'],impact_foot_tmp = impact_foot(feedback_dict,landmarks_dict,current_time,shoulder_len,Time,impact_foot_tmp)                                    #impact_foot
 
-            print(current_time)
+            #print(current_time)
             # 결과 동영상 파일에 추가
             out.write(annotated_frame)
             # 결과 출력
@@ -144,15 +144,15 @@ def pose_drawing(video_path, output_path):
     out.release()
     cv2.destroyAllWindows()
     print('feedback_dict', feedback_dict)
-    print('Time', Time)
+    #print('Time', Time)
 
 
 if __name__ == "__main__":
-    #video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
-    #output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
+    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro_4.mp4'  # 입력 동영상 파일 경로
+    output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
     # 쭈현이꺼
-    video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_1.mp4"  # 입력 동영상 파일 경로
-    output_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro1_output.mp4"  # 출력 동영상 파일 경로
+    #video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_1.mp4"  # 입력 동영상 파일 경로
+    #output_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro1_output.mp4"  # 출력 동영상 파일 경로
     slow_path = slowmotion(video_path)
     pose_drawing(slow_path, output_path)
 
