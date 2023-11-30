@@ -88,12 +88,12 @@ def pose_drawing(video_path, output_path):
 
 # 페이스/기준선 라인 첫 지점
             # 페이스 작업을 위한 랜드마크
-            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y= line_landmark(landmarks_dict, image_width, image_height)
+            head_center_x, head_center_y, ankle_center_x, ankle_center_y, radius,right_shoulder_y,left_ear_x= line_landmark(landmarks_dict, image_width, image_height)
 
             #첫 프레임
             if is_first:
-                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y \
-                 = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y
+                first_head_center_x, first_head_center_y, first_ankle_center_x, first_ankle_center_y, first_radius,first_right_shoulder_y,first_left_ear_x \
+                 = head_center_x, head_center_y, ankle_center_x, ankle_center_y, int(radius * 2),right_shoulder_y,left_ear_x
                 #어드레스 피드백
                 feedback_dict['address'],shoulder_len = address_feedback(feedback_dict,landmarks_dict)
                 is_first = False
@@ -119,7 +119,7 @@ def pose_drawing(video_path, output_path):
 #시간 호출
             Time['address'],address_tmp = address(first_ankle_center_x,landmarks_dict,Time,current_time,image_width,address_tmp)
             Time['back'],back_tmp = backswing(first_right_shoulder_y,landmarks_dict,Time,current_time,image_height,back_tmp)
-            Time['back_top'],top_tmp = top(first_head_center_y,first_radius, landmarks_dict, Time, current_time, image_height, top_tmp)
+            Time['back_top'],top_tmp = top(first_head_center_y,first_head_center_x,first_left_ear_x, landmarks_dict, Time, current_time, image_height, top_tmp)
             Time['impact'],impact_tmp = impact(first_ankle_center_x, landmarks_dict, Time, current_time, image_width, impact_tmp,top_tmp)
             Time['finish'] = total_time
 
@@ -148,11 +148,11 @@ def pose_drawing(video_path, output_path):
 
 
 if __name__ == "__main__":
-    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
-    output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
+    #video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro2.mp4'  # 입력 동영상 파일 경로
+    #output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
     # 쭈현이꺼
-    #video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_3.mp4"  # 입력 동영상 파일 경로
-    #output_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro3_output.mp4"  # 출력 동영상 파일 경로
+    video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_1.mp4"  # 입력 동영상 파일 경로
+    output_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro1_output.mp4"  # 출력 동영상 파일 경로
     slow_path = slowmotion(video_path)
     pose_drawing(slow_path, output_path)
 
