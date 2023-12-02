@@ -31,5 +31,5 @@ def line_landmark(landmarks_dict, image_width, image_height):
     #right_eye_inner_y = landmarks_dict["right_eye_inner"][1] * image_height
 
     # 반환값으로 변수들을 반환
-    return head_center_x,head_center_y,ankle_center_x,ankle_center_y,radius,right_shoulder_y
+    return head_center_x,head_center_y,ankle_center_x,ankle_center_y,radius,right_shoulder_y,left_ear_x
 

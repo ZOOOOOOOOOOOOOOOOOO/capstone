@@ -145,10 +145,12 @@ def pose_drawing(video_path, output_path):
     cv2.destroyAllWindows()
     print('feedback_dict', feedback_dict)
     #print('Time', Time)
-
-
+    print(cv2.__version__)
+    print(mp.__version__)
+    
+    
 if __name__ == "__main__":
-    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro_4.mp4'  # 입력 동영상 파일 경로
+    video_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro_5.mp4'  # 입력 동영상 파일 경로
     output_path = 'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\output_file4.mp4'  # 출력 동영상 파일 경로
     # 쭈현이꺼
     #video_path = "C:\\Users\\eju20\\OneDrive\\simulation\\pro_1.mp4"  # 입력 동영상 파일 경로
@@ -156,3 +158,5 @@ if __name__ == "__main__":
     slow_path = slowmotion(video_path)
     pose_drawing(slow_path, output_path)
 
+#'./static/assets/img/사용자영상.mp4'
+#'C:\\Users\\hyeeu\\OneDrive\\사진\\카메라 앨범\\pro_4.mp4'
